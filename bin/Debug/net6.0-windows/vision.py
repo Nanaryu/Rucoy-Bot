@@ -1,0 +1,257 @@
+import cv2 as cv
+import numpy as np
+import pyautogui as py
+import math as jola
+from hsvfilter import HsvFilter
+import sys
+from random import randint
+
+class Vision:
+    # constants
+    TRACKBAR_WINDOW = "Trackbars"
+
+
+    # properties
+    needle_img = None
+    needle_w = 0
+    needle_h = 0
+    method = None
+
+    # constructor
+    def __init__(self, needle_img_path, method=cv.TM_CCOEFF_NORMED):
+        # load the image we're trying to match  
+        self.needle_img = cv.imread(needle_img_path, cv.IMREAD_COLOR)
+
+        # Save the dimensions of the needle image
+
+        self.needle_h, self.needle_w = self.needle_img.shape[:2]
+        '''
+        self.needle_w = self.needle_img.shape[1]
+        self.needle_h = self.needle_img.shape[0]
+        '''
+        
+        # There are 6 methods to choose from:
+        # TM_CCOEFF, TM_CCOEFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_SQDIFF, TM_SQDIFF_NORMED
+        self.method = method
+    '''
+    def find(self, haystack_img, threshold=0.5):
+        # run the OpenCV algorithm
+        roi = self.needle_img[80:80+560, 120:120+1040]
+        h, w, _ = roi.shape
+
+        grid_height = h // 7
+        grid_width = w // 13
+        rectangles = []
+
+        for i in range(13):
+            for j in range(7):
+                x1 = j * grid_width
+                x2 = (j + 1) * grid_width
+                y1 = i * grid_height
+                y2 = (i + 1) * grid_height
+
+                # Get the current grid cell
+                grid_cell = roi[y1:y2, x1:x2]
+
+                # Perform template matching on the grid cell
+                result = cv.matchTemplate(grid_cell, self.needle_img, self.method)
+
+                # Get the positions from the match result that exceed our threshold
+                locations = np.where(result >= threshold)
+                locations = list(zip(*locations[::-1]))
+
+                # Add the rectangles for the current grid cell to the list
+                for loc in locations:
+                    rect = [int(loc[0]) + x1 + 80, int(loc[1]) + y1 + 120, self.needle_w, self.needle_h]
+                    rectangles.append(rect)
+
+        # Apply group rectangles to eliminate overlapping rectangles
+        rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
+
+        return rectangles
+    '''
+    
+    def find(self, haystack_img, threshold=0.5):
+        # run the OpenCV algorithm
+        roi = haystack_img[80:80+560, 120:120+1040]
+        height, width, _ = roi.shape #1040x560
+
+        #13 kwadratów 80x80
+        #7 kwadratów 80x80
+
+        grid_height = height // 7
+        grid_width = width // 13
+        rectangles = []
+        
+        for x in range(13):
+            for y in range(7):
+                x1 = x * grid_width
+                x2 = (x + 1) * grid_width
+                y1 = y * grid_height
+                y2 = (y + 1) * grid_height
+               
+                # Get the current grid cell
+                grid_cell = roi[y1:y2, x1:x2]
+
+                
+                # Perform template matching on the grid cell
+                
+                result = cv.matchTemplate(grid_cell, self.needle_img, self.method)
+
+                
+                # Get the positions from the match result that exceed our threshold
+
+                locations = np.where(result >= threshold)
+                locations = list(zip(*locations[::-1]))
+
+                # Add the rectangles for the current grid cell to the list
+                for loc in locations:
+                    rect = [int(loc[0]) + x1, int(loc[1]) + y1, self.needle_w, self.needle_h]
+                    rectangles.append(rect)
+
+        # Apply group rectangles to eliminate overlapping rectangles
+        rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
+
+        return rectangles
+
+    def find_orb(self, haystack_img):
+        orb = cv.ORB_create()
+
+        resized_img = cv.resize(haystack_img, (self.needle_img.shape[1], self.needle_img.shape[0]))
+
+        haystack_img_gray = cv.cvtColor(resized_img, cv.COLOR_BGR2GRAY)
+        template_gray = cv.cvtColor(self.needle_img, cv.COLOR_BGR2GRAY)
+        
+        kp1, des1 = orb.detectAndCompute(haystack_img, None)
+        kp2, des2 = orb.detectAndCompute(self.needle_img, None)
+
+        bf = cv.BFMatcher()
+
+        matches = bf.knnMatch(des1, des2, k=2)
+
+        good_matches = []
+        for m,n in matches:
+            if m.distance < 0.75*n.distance:
+                good_matches.append(m)
+
+        good_matches = list(zip(*good_matches[::-1]))
+
+        rectangles = []
+
+        for loc in good_matches:
+            rect = [int(loc[0]), int(loc[1]), self.needle_w, self.needle_h]
+            rectangles.append(rect)
+            rectangles.append(rect)
+        
+        rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
+
+        return rectangles
+
+    def get_click_points(self, rectangles):
+        points = []
+        for (x, y, w, h) in rectangles:
+            # Determine the center position
+            center_x = x + int(w/2)
+            center_y = y + int(h/2)
+            # Save the points
+            points.append((center_x, center_y))
+        return points
+                
+    def show_found(self, haystack_img, rectangles):
+        line_color = (0, 0, 255)
+        line_type = cv.LINE_4
+        for (x, y, w, h) in rectangles:
+
+            top_left = (x, y + 80)
+            bottom_right = (x + w, y + h + 80)
+            center_x = x + int(w/2)
+            center_y = y + int(h/2)
+
+            cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=2)
+            cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
+            cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
+            cv.line(haystack_img, (520, 280), (center_x, center_y + 80), (0, 255, 255), 2)
+        return haystack_img
+
+    def init_control_gui(self):
+        cv.namedWindow(self.TRACKBAR_WINDOW, cv.WINDOW_NORMAL)
+        cv.resizeWindow(self.TRACKBAR_WINDOW, 350, 700)
+
+        # required callback. we'll be using getTrackbarPos() to do lookups
+        # instead of using the callback.
+        def nothing(position):
+            pass
+
+        # create trackbars for bracketing.
+        # OpenCV scale for HSV is H: 0-179, S: 0-255, V: 0-255
+        cv.createTrackbar('HMin', self.TRACKBAR_WINDOW, 0, 179, nothing)
+        cv.createTrackbar('SMin', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        cv.createTrackbar('VMin', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        cv.createTrackbar('HMax', self.TRACKBAR_WINDOW, 0, 179, nothing)
+        cv.createTrackbar('SMax', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        cv.createTrackbar('VMax', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        # Set default value for Max HSV trackbars
+        cv.setTrackbarPos('HMax', self.TRACKBAR_WINDOW, 179)
+        cv.setTrackbarPos('SMax', self.TRACKBAR_WINDOW, 255)
+        cv.setTrackbarPos('VMax', self.TRACKBAR_WINDOW, 255)
+
+        # trackbars for increasing/decreasing saturation and value
+        cv.createTrackbar('SAdd', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        cv.createTrackbar('SSub', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        cv.createTrackbar('VAdd', self.TRACKBAR_WINDOW, 0, 255, nothing)
+        cv.createTrackbar('VSub', self.TRACKBAR_WINDOW, 0, 255, nothing)
+
+    def get_hsv_filter_from_controls(self):
+        # Get current positions of all trackbars
+        hsv_filter = HsvFilter()
+        hsv_filter.hMin = cv.getTrackbarPos('HMin', self.TRACKBAR_WINDOW)
+        hsv_filter.sMin = cv.getTrackbarPos('SMin', self.TRACKBAR_WINDOW)
+        hsv_filter.vMin = cv.getTrackbarPos('VMin', self.TRACKBAR_WINDOW)
+        hsv_filter.hMax = cv.getTrackbarPos('HMax', self.TRACKBAR_WINDOW)
+        hsv_filter.sMax = cv.getTrackbarPos('SMax', self.TRACKBAR_WINDOW)
+        hsv_filter.vMax = cv.getTrackbarPos('VMax', self.TRACKBAR_WINDOW)
+        hsv_filter.sAdd = cv.getTrackbarPos('SAdd', self.TRACKBAR_WINDOW)
+        hsv_filter.sSub = cv.getTrackbarPos('SSub', self.TRACKBAR_WINDOW)
+        hsv_filter.vAdd = cv.getTrackbarPos('VAdd', self.TRACKBAR_WINDOW)
+        hsv_filter.vSub = cv.getTrackbarPos('VSub', self.TRACKBAR_WINDOW)
+        return hsv_filter
+
+    def apply_hsv_filter(self, original_image, hsv_filter=None):
+        # convert image to HSV
+        hsv = cv.cvtColor(original_image, cv.COLOR_BGR2HSV)
+
+        # if we haven't been given a defined filter, use the filter values from the GUI
+        if not hsv_filter:
+            hsv_filter = self.get_hsv_filter_from_controls()
+
+        # add/subtract saturation and value
+        h, s, v = cv.split(hsv)
+        s = self.shift_channel(s, hsv_filter.sAdd)
+        s = self.shift_channel(s, -hsv_filter.sSub)
+        v = self.shift_channel(v, hsv_filter.vAdd)
+        v = self.shift_channel(v, -hsv_filter.vSub)
+        hsv = cv.merge([h, s, v])
+
+        # Set minimum and maximum HSV values to display
+        lower = np.array([hsv_filter.hMin, hsv_filter.sMin, hsv_filter.vMin])
+        upper = np.array([hsv_filter.hMax, hsv_filter.sMax, hsv_filter.vMax])
+        # Apply the thresholds
+        mask = cv.inRange(hsv, lower, upper)
+        result = cv.bitwise_and(hsv, hsv, mask=mask)
+
+        # convert back to BGR for imshow() to display it properly
+        img = cv.cvtColor(result, cv.COLOR_HSV2BGR)
+
+        return img
+
+    def shift_channel(self, c, amount):
+        if amount > 0:
+            lim = 255 - amount
+            c[c >= lim] = 255
+            c[c < lim] += amount
+        elif amount < 0:
+            amount = -amount
+            lim = amount
+            c[c <= lim] = 0
+            c[c > lim] -= amount
+        return c

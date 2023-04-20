@@ -1,0 +1,17 @@
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\bin\Debug\net6.0-windows\RucoyBot.exe
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\bin\Debug\net6.0-windows\RucoyBot.deps.json
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\bin\Debug\net6.0-windows\RucoyBot.runtimeconfig.json
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\bin\Debug\net6.0-windows\RucoyBot.dll
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\bin\Debug\net6.0-windows\RucoyBot.pdb
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.csproj.AssemblyReference.cache
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.Form1.resources
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.csproj.GenerateResource.cache
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.AssemblyInfoInputs.cache
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.AssemblyInfo.cs
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.csproj.CoreCompileInputs.cache
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.dll
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\refint\RucoyBot.dll
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.pdb
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\RucoyBot.genruntimeconfig.cache
+C:\Users\Filip\source\repos\RucoyBot\RucoyBot\obj\Debug\net6.0-windows\ref\RucoyBot.dll
