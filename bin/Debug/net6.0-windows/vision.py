@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 import pyautogui as py
-import math as jola
 from hsvfilter import HsvFilter
 import sys
 from random import randint
@@ -33,43 +32,6 @@ class Vision:
         # There are 6 methods to choose from:
         # TM_CCOEFF, TM_CCOEFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_SQDIFF, TM_SQDIFF_NORMED
         self.method = method
-    '''
-    def find(self, haystack_img, threshold=0.5):
-        # run the OpenCV algorithm
-        roi = self.needle_img[80:80+560, 120:120+1040]
-        h, w, _ = roi.shape
-
-        grid_height = h // 7
-        grid_width = w // 13
-        rectangles = []
-
-        for i in range(13):
-            for j in range(7):
-                x1 = j * grid_width
-                x2 = (j + 1) * grid_width
-                y1 = i * grid_height
-                y2 = (i + 1) * grid_height
-
-                # Get the current grid cell
-                grid_cell = roi[y1:y2, x1:x2]
-
-                # Perform template matching on the grid cell
-                result = cv.matchTemplate(grid_cell, self.needle_img, self.method)
-
-                # Get the positions from the match result that exceed our threshold
-                locations = np.where(result >= threshold)
-                locations = list(zip(*locations[::-1]))
-
-                # Add the rectangles for the current grid cell to the list
-                for loc in locations:
-                    rect = [int(loc[0]) + x1 + 80, int(loc[1]) + y1 + 120, self.needle_w, self.needle_h]
-                    rectangles.append(rect)
-
-        # Apply group rectangles to eliminate overlapping rectangles
-        rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
-
-        return rectangles
-    '''
     
     def find(self, haystack_img, threshold=0.5):
         # run the OpenCV algorithm
@@ -110,39 +72,6 @@ class Vision:
                     rectangles.append(rect)
 
         # Apply group rectangles to eliminate overlapping rectangles
-        rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
-
-        return rectangles
-
-    def find_orb(self, haystack_img):
-        orb = cv.ORB_create()
-
-        resized_img = cv.resize(haystack_img, (self.needle_img.shape[1], self.needle_img.shape[0]))
-
-        haystack_img_gray = cv.cvtColor(resized_img, cv.COLOR_BGR2GRAY)
-        template_gray = cv.cvtColor(self.needle_img, cv.COLOR_BGR2GRAY)
-        
-        kp1, des1 = orb.detectAndCompute(haystack_img, None)
-        kp2, des2 = orb.detectAndCompute(self.needle_img, None)
-
-        bf = cv.BFMatcher()
-
-        matches = bf.knnMatch(des1, des2, k=2)
-
-        good_matches = []
-        for m,n in matches:
-            if m.distance < 0.75*n.distance:
-                good_matches.append(m)
-
-        good_matches = list(zip(*good_matches[::-1]))
-
-        rectangles = []
-
-        for loc in good_matches:
-            rect = [int(loc[0]), int(loc[1]), self.needle_w, self.needle_h]
-            rectangles.append(rect)
-            rectangles.append(rect)
-        
         rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
 
         return rectangles

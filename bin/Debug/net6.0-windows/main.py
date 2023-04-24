@@ -31,7 +31,9 @@ def draw_grid(img):
     for i in range(80, 641, 80):
         cv.line(img, (120, i), (1160, i), (255, 0, 0), 1)
 
-def draw_grid_nohalf(img):
+# fullscreen is made from 16 tiles, just at start there is half grid cell, 
+# and at the end there is another half grid cell, this function draws it without the halves
+def draw_grid_nohalf(img): 
     for i in range(0, 1040, 80):
         cv.line(img, (i, 0), (i, 560), (255, 0, 0), 1)
     
@@ -41,16 +43,16 @@ def draw_grid_nohalf(img):
 
 
 # Change the working directory to the folder this script is in.
-# Doing this because I'll be putting the files from each video in their own folder on GitHub
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 loop_time = time()
 
-# initialize the WindowCapture class
+# Window Name, i recommend NoxPlayer because the program was made on it
 wincap = WindowCapture('NoxPlayer')
 
-image_paths = sys.argv[3].split("//")
+image_paths = sys.argv[3].split("//") # selected from listed checkbox
 
+# instances of each Vision class with loaded png
 vision_instances = []
 
 for path in image_paths:
@@ -59,13 +61,13 @@ for path in image_paths:
 
 bot = Bot()
 
-
-
+# filter that allows program to only see black and white
 blackwhite = HsvFilter(0, 0, 237, 0, 153, 255, 0, 0, 0, 0)
 
 
 MAP_OPEN = False #1000 70, close 1245 70
 
+# self explainable
 if sys.argv[1] == "True":
     debug_mode = True
 elif sys.argv[1] == "False":
@@ -76,23 +78,26 @@ while True:
         # get an updated image of the game
         screenshot = wincap.get_screenshot()
         
+        # get image with only black and white elements
         proc_image = vision_instances[0].apply_hsv_filter(screenshot, blackwhite)
-        rectangles = []
 
+        rectangles = []
+        # append each found element coordinates 
         for vision_instance in vision_instances:
             rectangles.append(vision_instance.find(proc_image, 0.65))
             
             
 
-        #enemy_proc_img = enemy.apply_hsv_filter(screenshot, blackwhite)
-        #rectangles = enemy.find(enemy_proc_img, 0.46)
-
         if debug_mode == False:
+            # get the noxplayer window to 0,0 coordinates (top left)
             py.getWindowsWithTitle("NoxPlayer")[0].moveTo(0, 0)
+            # only if it found elements
             if len(rectangles[0]) != 0:
                 for i in range(len(rectangles)):
+                    # click the closest one
                     bot.kill(rectangles[i])
             else:
+                # semi random movement, will be improved
                 r = randint(0, 4)
                 if r == 1:
                     py.click(633 + 80, 360)
@@ -106,13 +111,14 @@ while True:
             #print(rectangles)
             for vision_instance in vision_instances:
                 for i in range(len(rectangles)):
+                    # show the region of interest that the program is searching in, with the drawn found elements
                     output_enemy = vision_instance.show_found(screenshot[80:80+560, 120:120+1040], rectangles[i])
-                    #output_enemy = vision_instance.find_sift(screenshot)
                     draw_grid_nohalf(output_enemy)
                     cv.imshow('debug_mode', output_enemy)
             draw_grid(proc_image)
             cv.imshow('processed_image', proc_image)
             
+        # displays fps, the program is quite slow (14-15fps with one element loaded)    
         print('FPS {}'.format(1 / (time() - loop_time)))
         loop_time = time()
 
@@ -120,6 +126,7 @@ while True:
         if cv.waitKey(1) == ord('q'):
             cv.destroyAllWindows()
             break
+    # catch errors because if ran from external application the window will immediately close without showing the error
     except Exception as e:
         print("An error occurred:", e)
         input("Press Enter to continue...")
