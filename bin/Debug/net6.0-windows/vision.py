@@ -3,7 +3,7 @@ import numpy as np
 import pyautogui as py
 from hsvfilter import HsvFilter
 import sys
-from random import randint
+from math import sqrt
 
 class Vision:
     # constants
@@ -32,49 +32,39 @@ class Vision:
         # There are 6 methods to choose from:
         # TM_CCOEFF, TM_CCOEFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_SQDIFF, TM_SQDIFF_NORMED
         self.method = method
-    
+   
     def find(self, haystack_img, threshold=0.5):
-        # run the OpenCV algorithm
         roi = haystack_img[80:80+560, 120:120+1040]
         height, width, _ = roi.shape #1040x560
+        h, w, _ = self.needle_img.shape
+        #13 squares 80x80 width
+        #7 squares 80x80 height
 
-        #13 kwadratów 80x80
-        #7 kwadratów 80x80
-
-        grid_height = height // 7
-        grid_width = width // 13
-        rectangles = []
         
-        for x in range(13):
-            for y in range(7):
-                x1 = x * grid_width
-                x2 = (x + 1) * grid_width
-                y1 = y * grid_height
-                y2 = (y + 1) * grid_height
-               
-                # Get the current grid cell
-                grid_cell = roi[y1:y2, x1:x2]
+        rectangles = []
+        # resize
+        resized_roi = cv.resize(roi, (int(width/2), int(height/2)))
+        res_needle = cv.resize(self.needle_img, (int(w/2), int(h/2)))
+        # Perform template matching 
+                
+        result = cv.matchTemplate(resized_roi, res_needle, self.method)
 
                 
-                # Perform template matching on the grid cell
-                
-                result = cv.matchTemplate(grid_cell, self.needle_img, self.method)
+        # Get the positions from the match result that exceed threshold
 
-                
-                # Get the positions from the match result that exceed our threshold
+        locations = np.where(result >= threshold)
+        locations = list(zip(*locations[::-1]))
 
-                locations = np.where(result >= threshold)
-                locations = list(zip(*locations[::-1]))
-
-                # Add the rectangles for the current grid cell to the list
-                for loc in locations:
-                    rect = [int(loc[0]) + x1, int(loc[1]) + y1, self.needle_w, self.needle_h]
-                    rectangles.append(rect)
+        # Add the rectangles for the to the list
+        for loc in locations:
+            rect = [int(loc[0])*2, int(loc[1])*2, res_needle.shape[1]*2, res_needle.shape[0]*2]
+            rectangles.append(rect)
 
         # Apply group rectangles to eliminate overlapping rectangles
         rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
 
         return rectangles
+
 
     def get_click_points(self, rectangles):
         points = []
@@ -85,10 +75,26 @@ class Vision:
             # Save the points
             points.append((center_x, center_y))
         return points
-                
+
     def show_found(self, haystack_img, rectangles):
         line_color = (0, 0, 255)
         line_type = cv.LINE_4
+
+        cv.rectangle(haystack_img, (480, 240), (560, 320), (0, 255, 0), 2)
+
+        distances = []
+        print(rectangles)
+        for (x, y, w, h) in rectangles:
+            distances.append(
+                    [
+                        x, # enemy x
+                        y, # enemy y
+                        sqrt((x - 640)**2 + (y - 385)**2) # distance from player center(640, 385)
+                    ]
+                )
+        dSorted = sorted(distances, key=lambda x: x[2])
+        
+
         for (x, y, w, h) in rectangles:
 
             top_left = (x, y + 80)
@@ -97,10 +103,15 @@ class Vision:
             center_y = y + int(h/2)
 
             cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=2)
-            cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
-            cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
-            cv.line(haystack_img, (520, 280), (center_x, center_y + 80), (0, 255, 255), 2)
+            cv.line(haystack_img, (520, 280), (center_x, center_y + 80), (255, 255, 0), 2)
+            
+        if len(dSorted) != 0:
+            #cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
+            #cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
+            cv.line(haystack_img, (520, 280), (dSorted[0][0]+int(w/2), dSorted[0][1] + 80 + int(h/2)), (0, 0, 0), 2)
         return haystack_img
+
+
 
     def init_control_gui(self):
         cv.namedWindow(self.TRACKBAR_WINDOW, cv.WINDOW_NORMAL)

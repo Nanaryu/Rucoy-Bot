@@ -47,7 +47,8 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 loop_time = time()
 
-# Window Name, i recommend NoxPlayer because the program was made on it
+# before capturing the window get it focused or else it will throw CreateCompatibleDC failed
+# Window Name, i recommend NoxPlayer because the program was made and tested on it
 wincap = WindowCapture('NoxPlayer')
 
 image_paths = sys.argv[3].split("//") # selected from listed checkbox
@@ -56,7 +57,7 @@ image_paths = sys.argv[3].split("//") # selected from listed checkbox
 vision_instances = []
 
 for path in image_paths:
-    vision_instances.append(Vision(path + "c.png"))
+    vision_instances.append(Vision("assets/" + path + ".png"))
 
 
 bot = Bot()
@@ -86,8 +87,6 @@ while True:
         for vision_instance in vision_instances:
             rectangles.append(vision_instance.find(proc_image, 0.65))
             
-            
-
         if debug_mode == False:
             # get the noxplayer window to 0,0 coordinates (top left)
             py.getWindowsWithTitle("NoxPlayer")[0].moveTo(0, 0)
@@ -100,13 +99,13 @@ while True:
                 # semi random movement, will be improved
                 r = randint(0, 4)
                 if r == 1:
-                    py.click(633 + 80, 360)
+                    py.click(640 + 80, 385)
                 elif r == 2:
-                    py.click(633 - 80, 360)
+                    py.click(640 - 80, 385)
                 elif r == 3:
-                    py.click(633, 360 + 80)
+                    py.click(640, 385 + 80)
                 else:
-                    py.click(633, 360 - 80)
+                    py.click(640, 385 - 80)
         else:
             #print(rectangles)
             for vision_instance in vision_instances:
@@ -115,7 +114,7 @@ while True:
                     output_enemy = vision_instance.show_found(screenshot[80:80+560, 120:120+1040], rectangles[i])
                     draw_grid_nohalf(output_enemy)
                     cv.imshow('debug_mode', output_enemy)
-            draw_grid(proc_image)
+            #draw_grid(proc_image)
             cv.imshow('processed_image', proc_image)
             
         # displays fps, the program is quite slow (14-15fps with one element loaded)    

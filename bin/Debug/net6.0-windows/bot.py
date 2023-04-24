@@ -8,20 +8,20 @@ def gtv(sublist):
 class Bot:
     
     def kill(self, rectangles):
-        distances = [] # mega table
-        for enemyT in rectangles:
+        distances = []
+        for (x, y, w, h) in rectangles:
             distances.append(
                     (
-                        enemyT[0], # enemy name x
-                        enemyT[1], # enemy name y
-                        sqrt((enemyT[0] - 633)**2 + (enemyT[1] - 360)**2) # distance from player (633, 360)
+                        x, # enemy x
+                        y, # enemy y
+                        sqrt((x - 640)**2 + (y - 385)**2) # distance from player center(640, 385)
                     )
                 )
-        dSorted = sorted(distances, key=gtv) # sort tables in mega table to get the closest enemy coordinates
+        # sort lists to get the closest enemy coordinates
+        dSorted = sorted(distances, key=gtv) 
             
         if len(dSorted) != 0:
-            if dSorted[0][1] < 660:
-                py.click(dSorted[0][0] + dSorted[0][2]/2 + 15, dSorted[0][1] + 90) # click the enemy
-                sleep(5)
-                py.click(dSorted[0][0] + dSorted[0][2]/2 + 15, dSorted[0][1] + 90) # click the enemy
+            py.click(dSorted[0][0]+int(w/2), dSorted[0][1] + 80) # click the enemy
+            sleep(1)
+            py.click(dSorted[0][0]+int(w/2), dSorted[0][1] + 80) # unclick the enemy, so the next click selects it again
 

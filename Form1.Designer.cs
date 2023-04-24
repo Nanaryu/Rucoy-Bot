@@ -147,7 +147,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(172, 28);
             this.label2.TabIndex = 7;
-            this.label2.Text = "Rucoy Farmer v0.2";
+            this.label2.Text = "Rucoy Farmer v0.4";
             // 
             // radioButton1
             // 
