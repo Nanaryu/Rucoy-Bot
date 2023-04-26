@@ -209,7 +209,7 @@
             "Lizard Captain 180",
             "Lizard High Shaman 190",
             "Djinn 150",
-            "Dead Eyes 150",
+            "Dead Eyes 170",
             "Gargoyle 190",
             "Minotaur 225",
             "Minotaur 250",

@@ -10,12 +10,15 @@ from hsvfilter import HsvFilter
 import sys
 from bot import Bot
 from random import randint
+import pytesseract as pts
 
 if cv.ocl.haveOpenCL():
     cv.ocl.setUseOpenCL(True)
     print("OpenCL is enabled")
 else:
     print("OpenCL is not available")
+
+pts.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract'
 
 
 def draw_grid(img):
@@ -85,7 +88,7 @@ while True:
         rectangles = []
         # append each found element coordinates 
         for vision_instance in vision_instances:
-            rectangles.append(vision_instance.find(proc_image, 0.65))
+            rectangles.append(vision_instance.find(proc_image, 0.7))
             
         if debug_mode == False:
             # get the noxplayer window to 0,0 coordinates (top left)
@@ -107,18 +110,20 @@ while True:
                 else:
                     py.click(640, 385 - 80)
         else:
-            #print(rectangles)
+            #textimg = proc_image[160:160+4*80, 440:440+6*80]
+            #print(pts.image_to_string(textimg))
+            py.pixelMatchesColor
             for vision_instance in vision_instances:
                 for i in range(len(rectangles)):
                     # show the region of interest that the program is searching in, with the drawn found elements
                     output_enemy = vision_instance.show_found(screenshot[80:80+560, 120:120+1040], rectangles[i])
                     draw_grid_nohalf(output_enemy)
                     cv.imshow('debug_mode', output_enemy)
-            #draw_grid(proc_image)
+            draw_grid(proc_image)
             cv.imshow('processed_image', proc_image)
             
         # displays fps, the program is quite slow (14-15fps with one element loaded)    
-        print('FPS {}'.format(1 / (time() - loop_time)))
+        #print('FPS {}'.format(1 / (time() - loop_time)))
         loop_time = time()
 
         # press 'q' with the output window focused to exit.

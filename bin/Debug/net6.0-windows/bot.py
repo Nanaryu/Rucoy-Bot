@@ -14,7 +14,7 @@ class Bot:
                     (
                         x, # enemy x
                         y, # enemy y
-                        sqrt((x - 640)**2 + (y - 385)**2) # distance from player center(640, 385)
+                        sqrt((x - 640)**2 + (y - 390)**2) # distance from player center(640, 390)
                     )
                 )
         # sort lists to get the closest enemy coordinates
