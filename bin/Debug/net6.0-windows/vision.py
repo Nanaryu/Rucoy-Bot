@@ -57,7 +57,7 @@ class Vision:
 
         # Add the rectangles for the to the list
         for loc in locations:
-            rect = [int(loc[0])*2, int(loc[1])*2, res_needle.shape[1]*2, res_needle.shape[0]*2]
+            rect = [int(loc[0])*2 + 120, int(loc[1])*2 + 80, res_needle.shape[1]*2, res_needle.shape[0]*2]
             rectangles.append(rect)
 
         # Apply group rectangles to eliminate overlapping rectangles
@@ -79,6 +79,10 @@ class Vision:
     def show_found(self, haystack_img, rectangles):
         line_color = (0, 0, 255)
         line_type = cv.LINE_4
+        player_x_roi = 520
+        player_y_roi = 280
+        player_x = 640
+        player_y = 360
 
         #cv.rectangle(haystack_img, (480, 240), (560, 320), (0, 255, 0), 2)
 
@@ -88,7 +92,7 @@ class Vision:
                     [
                         x, # enemy x
                         y, # enemy y
-                        sqrt((x - 640)**2 + (y - 390)**2) # distance from player center(640, 390)
+                        sqrt((x - player_x)**2 + (y - player_y)**2) # distance from player center(640, 390)
                     ]
                 )
         def gtv(s):
@@ -105,15 +109,15 @@ class Vision:
             center_x = x + int(w/2)
             center_y = y + int(h/2)
 
-            cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=1)
+            cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=-1)
             cv.rectangle(haystack_img, tl, br, color=(0, 255, 0), lineType=line_type, thickness=-1)
-            cv.line(haystack_img, (520, 280), (center_x, center_y + 80), (0, 255, 0), 2)
+            cv.line(haystack_img, (player_x, player_y), (center_x, center_y + 80), (0, 255, 0), 2)
             
-        if len(dSorted) != 0:
-            #cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
-            #cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
-            cv.line(haystack_img, (520, 280), (dSorted[0][0]+int(w/2), dSorted[0][1] + 80 + int(h/2)), (0, 0, 255), 2)
-            cv.rectangle(haystack_img, (dSorted[0][0]+30, dSorted[0][1]+110), (dSorted[0][0]+w-30, dSorted[0][1]+h+50), color=(0, 0, 255), lineType=line_type, thickness=-1)
+            if len(dSorted) != 0:
+                #cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
+                #cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
+                cv.line(haystack_img, (player_x, player_y), (dSorted[0][0]+int(w/2), dSorted[0][1] + 80 + int(h/2)), (0, 0, 255), 2)
+                cv.circle(haystack_img, (dSorted[0][0]+int(w/2), dSorted[0][1]+int(h/2)+80), 10, (0, 0, 255), thickness=2)
         return haystack_img
 
 

@@ -9,7 +9,7 @@ from math import sqrt
 from hsvfilter import HsvFilter
 import sys
 from bot import Bot
-from random import randint
+from random import randint, shuffle
 import pytesseract as pts
 
 if cv.ocl.haveOpenCL():
@@ -99,25 +99,33 @@ while True:
                     # click the closest one
                     bot.kill(rectangles[i])
             else:
-                # semi random movement, will be improved
-                r = randint(0, 4)
-                if r == 1:
-                    py.click(640 + 80, 385)
-                elif r == 2:
-                    py.click(640 - 80, 385)
-                elif r == 3:
-                    py.click(640, 385 + 80)
-                else:
-                    py.click(640, 385 - 80)
+                clicklist = [
+                    (640, 360+80),
+                    (640, 360-80),
+                    (640+80, 360),
+                    (640+80, 360+80),
+                    (640+80, 360-80),
+                    (640-80, 360),
+                    (640-80, 360+80),
+                    (640-80, 360-80)
+                ]
+                shuffle(clicklist)
+                # open map
+                py.click(1000, 70)
+                # click every point around player randomly
+                for clickpoint in clicklist:
+                    py.click(clickpoint[0], clickpoint[1])
+                # close map
+                py.click(1245, 70)
         else:
             #textimg = proc_image[160:160+4*80, 440:440+6*80]
             #print(pts.image_to_string(textimg))
-            py.pixelMatchesColor
             for vision_instance in vision_instances:
                 for i in range(len(rectangles)):
                     # show the region of interest that the program is searching in, with the drawn found elements
-                    output_enemy = vision_instance.show_found(screenshot[80:80+560, 120:120+1040], rectangles[i])
-                    draw_grid_nohalf(output_enemy)
+                    # roi [80:80+560, 120:120+1040]
+                    output_enemy = vision_instance.show_found(screenshot, rectangles[i])
+                    draw_grid(output_enemy)
                     cv.imshow('debug_mode', output_enemy)
             draw_grid(proc_image)
             cv.imshow('processed_image', proc_image)
