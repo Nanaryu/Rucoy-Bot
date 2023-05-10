@@ -64,14 +64,14 @@ namespace RucoyBot
                 pybot.StartInfo.UseShellExecute = false;
                 if (debug_mode == "False") 
                 {
-                    pybot.StartInfo.CreateNoWindow = true;
+                    pybot.StartInfo.CreateNoWindow = false;
                 } 
                 else
                 {
                     pybot.StartInfo.CreateNoWindow = false;
                 }
                 pybot.Start();
-                log("Starting");
+                log($"Starting \"{file}\" debugmode:\"{debug_mode}\" \"{launch_type}\" on {args}");
             }
             else
             {
