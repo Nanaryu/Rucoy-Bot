@@ -66,7 +66,7 @@ class Vision:
         rectangle_list = []
         for rectangle in rectangles:
             rectangle_list.append(list(rectangle))
-
+        print(rectangle_list)
         return rectangle_list
 
     def get_click_points(self, rectangles):
@@ -90,35 +90,35 @@ class Vision:
         #cv.rectangle(haystack_img, (480, 240), (560, 320), (0, 255, 0), 2)
 
         distances = []
-        for (x, y, w, h) in rectangles:
-            distances.append(
-                    [
-                        x, # enemy x
-                        y, # enemy y
-                        sqrt((x - player_x)**2 + (y - player_y)**2) # distance from player center(640, 390)
-                    ]
-                )
+        x, y, w, h = rectangles
+        distances.append(
+                [
+                    x, # enemy x
+                    y, # enemy y
+                    sqrt((x - player_x)**2 + (y - player_y)**2) # distance from player center(640, 390)
+                ]
+            )
         def gtv(s):
             return s[2]
         
         dSorted = sorted(distances, key=gtv)
-        for (x, y, w, h) in rectangles:
-            top_left = (x, y + 80)
-            tl = (x + 30, y + 110)
-            br = (x + w - 30, y + h + 50)
-            bottom_right = (x + w, y + h + 80)
-            center_x = x + int(w/2)
-            center_y = y + int(h/2)
 
-            cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=2)
-            cv.rectangle(haystack_img, tl, br, color=(0, 255, 0), lineType=line_type, thickness=-1)
-            cv.line(haystack_img, (player_x, player_y), (center_x, center_y + 80), (0, 255, 0), 2)
+        top_left = (x, y + 80)
+        tl = (x + 30, y + 110)
+        br = (x + w - 30, y + h + 50)
+        bottom_right = (x + w, y + h + 80)
+        center_x = x + int(w/2)
+        center_y = y + int(h/2)
+
+        cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=2)
+        cv.rectangle(haystack_img, tl, br, color=(0, 255, 0), lineType=line_type, thickness=-1)
+        cv.line(haystack_img, (player_x, player_y), (center_x, center_y + 80), (0, 255, 0), 2)
                 
-            if len(dSorted) != 0:
-                #cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
-                #cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
-                cv.line(haystack_img, (player_x, player_y), (dSorted[0][0]+int(w/2), dSorted[0][1] + 80 + int(h/2)), (0, 0, 255), 2)
-                cv.circle(haystack_img, (dSorted[0][0]+int(w/2), dSorted[0][1]+int(h/2)+80), 10, (0, 0, 255), thickness=2)
+        if len(dSorted) != 0:
+            #cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
+            #cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
+            cv.line(haystack_img, (player_x, player_y), (dSorted[0][0]+int(w/2), dSorted[0][1] + 80 + int(h/2)), (0, 0, 255), 2)
+            cv.circle(haystack_img, (dSorted[0][0]+int(w/2), dSorted[0][1]+int(h/2)+80), 10, (0, 0, 255), thickness=2)
 
         return haystack_img
 

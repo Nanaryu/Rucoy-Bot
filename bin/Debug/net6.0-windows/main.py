@@ -76,8 +76,9 @@ loop_time = time()
 
 # before capturing the window get it focused or else it will throw CreateCompatibleDC failed
 # Window Name, i recommend NoxPlayer because the program was made and tested on it
-wincap = WindowCapture('NoxPlayer')
-
+emulator = "NoxPlayer"
+wincap = WindowCapture(emulator)
+print(sys.argv)
 image_paths = sys.argv[3].split("//") # selected from listed checkbox
 
 # instances of each Vision class with loaded png
@@ -95,7 +96,7 @@ blackwhite = HsvFilter(0, 0, 237, 0, 153, 255, 0, 0, 0, 0)
 
 MAP_OPEN = False #1000 70, close 1245 70
 
-cooldown = 5
+cooldown = 2
 last_search_time = 0
 
 debug_mode = eval(sys.argv[1])
@@ -119,23 +120,21 @@ while True:
             else:
                 rectangles = found
 
-        if debug_mode == False:
-            # get the noxplayer window to 0,0 coordinates (top left)
-            getWindowsWithTitle("NoxPlayer")[0].moveTo(0, 0)
-            print(rectangles)
-            
+        # get the noxplayer window to 0,0 coordinates (top left)
+        getWindowsWithTitle(emulator)[0].moveTo(0, 0)
+        if debug_mode == False:    
             # kill enemies only if it found elements
             if len(rectangles) != 0 and len(rectangles[0]) != 0:
                 enemy_present = True
                 for enemy in rectangles:
                     closest = bot.kill(enemy)
                     c(closest[0], closest[1])
-            
+                
             # search if cooldown has passed and no enemies are present
             if monotonic() - last_search_time > cooldown and enemy_present == False:
                 map_search()
                 last_search_time = monotonic()
-                
+                    
                 # reset rectangles
                 rectangles = []
 
@@ -153,7 +152,7 @@ while True:
             cv.imshow('processed_image', proc_image)
         
         # displays fps    
-        print('FPS {}'.format(1 / (time() - loop_time)))
+        #print('FPS {}'.format(1 / (time() - loop_time)))
         loop_time = time()
 
         # press 'q' with the output window focused to exit.

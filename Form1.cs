@@ -47,7 +47,7 @@ namespace RucoyBot
         }
 
 
-        string file = "main.py";
+        string file = @"dist\main\main.exe";
         string debug_mode = "False";
         string launch_type = "skilling";
         private List<string> target_list = new List<string>();
@@ -59,19 +59,19 @@ namespace RucoyBot
             {
                 isOn = true;
 
-                pybot.StartInfo.FileName = "Python";
-                pybot.StartInfo.Arguments = $" \"{file}\" \"{debug_mode}\" \"{launch_type}\" \"{string.Join("//", args)}\"";
+                pybot.StartInfo.FileName = @"dist\main\main.exe";
+                pybot.StartInfo.Arguments = $" \"{debug_mode}\" \"{launch_type}\" \"{string.Join("//", args)}\"";
                 pybot.StartInfo.UseShellExecute = false;
                 if (debug_mode == "False") 
                 {
-                    pybot.StartInfo.CreateNoWindow = false;
+                    pybot.StartInfo.CreateNoWindow = true;
                 } 
                 else
                 {
                     pybot.StartInfo.CreateNoWindow = false;
                 }
                 pybot.Start();
-                log($"Starting \"{file}\" debugmode:\"{debug_mode}\" \"{launch_type}\" on {args}");
+                log($"Starting \"{file}\" debugmode:\"{debug_mode}\" \"{launch_type}\"");
             }
             else
             {
