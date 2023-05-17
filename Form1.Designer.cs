@@ -124,7 +124,7 @@
             this.richTextBox2.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.richTextBox2.Size = new System.Drawing.Size(549, 404);
             this.richTextBox2.TabIndex = 5;
-            this.richTextBox2.Text = "[v0.6]: Deleted mobs over minotaurs\n";
+            this.richTextBox2.Text = "Shift + F5 acts like stop button";
             this.richTextBox2.TextChanged += new System.EventHandler(this.richTextBox2_TextChanged);
             // 
             // checkBox1
