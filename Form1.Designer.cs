@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
@@ -39,6 +40,8 @@
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // button1
@@ -48,9 +51,9 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(716, 5);
+            this.button1.Location = new System.Drawing.Point(741, 5);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(85, 24);
+            this.button1.Size = new System.Drawing.Size(54, 24);
             this.button1.TabIndex = 0;
             this.button1.Text = "Exit";
             this.button1.UseVisualStyleBackColor = false;
@@ -121,8 +124,7 @@
             this.richTextBox2.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.richTextBox2.Size = new System.Drawing.Size(549, 404);
             this.richTextBox2.TabIndex = 5;
-            this.richTextBox2.Text = "[v0.2]: Mobs over Dragon 250 might not work because my character is not strong en" +
-    "ough for testing.\n";
+            this.richTextBox2.Text = "[v0.6]: Deleted mobs over minotaurs\n";
             this.richTextBox2.TextChanged += new System.EventHandler(this.richTextBox2_TextChanged);
             // 
             // checkBox1
@@ -145,14 +147,15 @@
             this.label2.ForeColor = System.Drawing.Color.Red;
             this.label2.Location = new System.Drawing.Point(3, 1);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(172, 28);
+            this.label2.Size = new System.Drawing.Size(123, 28);
             this.label2.TabIndex = 7;
-            this.label2.Text = "Rucoy Farmer v0.4";
+            this.label2.Text = "Toolazy v.0.6";
             // 
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
             this.radioButton1.Checked = true;
+            this.radioButton1.Enabled = false;
             this.radioButton1.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.radioButton1.ForeColor = System.Drawing.Color.White;
             this.radioButton1.Location = new System.Drawing.Point(12, 334);
@@ -167,6 +170,7 @@
             // radioButton2
             // 
             this.radioButton2.AutoSize = true;
+            this.radioButton2.Enabled = false;
             this.radioButton2.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.radioButton2.ForeColor = System.Drawing.Color.White;
             this.radioButton2.Location = new System.Drawing.Point(12, 296);
@@ -185,19 +189,16 @@
             this.checkedListBox1.ForeColor = System.Drawing.Color.White;
             this.checkedListBox1.FormattingEnabled = true;
             this.checkedListBox1.Items.AddRange(new object[] {
-            "Rat 1",
+            "Rat",
             "Scorpion 12",
             "Cobra 13",
             "Worm 14",
-            "Assassin 45",
-            "Assassin 50",
-            "Assassin 55",
+            "Assasin",
             "Zombie 65",
             "Skeleton 75",
             "Skeleton Archer 80",
             "Skeleton Warrior 90",
-            "Vampire 100",
-            "Vampire 110",
+            "Vampire",
             "Drow Assasin 120",
             "Drow Ranger 125",
             "Drow Mage 130",
@@ -211,28 +212,34 @@
             "Djinn 150",
             "Dead Eyes 170",
             "Gargoyle 190",
-            "Minotaur 225",
-            "Minotaur 250",
-            "Minotaur 275",
-            "Dragon Hatchling 240",
-            "Dragon 250",
-            "Dragon Warden 280",
-            "Ice Elemental 300",
-            "Ice Dragon 320",
-            "Yeti 350",
-            "Lava Golem 375",
-            "Orthrus 400",
-            "Demon 450"});
+            "Minotaur"});
             this.checkedListBox1.Location = new System.Drawing.Point(12, 45);
             this.checkedListBox1.Name = "checkedListBox1";
             this.checkedListBox1.Size = new System.Drawing.Size(176, 234);
             this.checkedListBox1.TabIndex = 11;
             this.checkedListBox1.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBox1_ItemCheck);
             // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "NoxPlayer"});
+            this.comboBox1.Location = new System.Drawing.Point(119, 296);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 23);
+            this.comboBox1.TabIndex = 12;
+            this.comboBox1.Text = "NoxPlayer";
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.ClientSize = new System.Drawing.Size(807, 462);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.checkedListBox1);
             this.Controls.Add(this.radioButton2);
             this.Controls.Add(this.radioButton1);
@@ -265,5 +272,7 @@
         private RadioButton radioButton1;
         private RadioButton radioButton2;
         private CheckedListBox checkedListBox1;
+        private ComboBox comboBox1;
+        private System.Windows.Forms.Timer timer1;
     }
 }

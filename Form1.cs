@@ -43,6 +43,7 @@ namespace RucoyBot
 
         private void button1_Click(object sender, EventArgs e)
         {
+            timer1.Stop();
             Application.Exit();
         }
 
@@ -50,6 +51,7 @@ namespace RucoyBot
         string file = @"dist\main\main.exe";
         string debug_mode = "False";
         string launch_type = "skilling";
+        string emulator = "NoxPlayer";
         private List<string> target_list = new List<string>();
         
         private void button2_Click(object sender, EventArgs e)
@@ -59,8 +61,8 @@ namespace RucoyBot
             {
                 isOn = true;
 
-                pybot.StartInfo.FileName = @"dist\main\main.exe";
-                pybot.StartInfo.Arguments = $" \"{debug_mode}\" \"{launch_type}\" \"{string.Join("//", args)}\"";
+                pybot.StartInfo.FileName = file;
+                pybot.StartInfo.Arguments = $" \"{debug_mode}\" \"{launch_type}\" \"{string.Join("//", args)}\" \"{emulator}\"";
                 pybot.StartInfo.UseShellExecute = false;
                 if (debug_mode == "False") 
                 {
@@ -71,7 +73,7 @@ namespace RucoyBot
                     pybot.StartInfo.CreateNoWindow = false;
                 }
                 pybot.Start();
-                log($"Starting \"{file}\" debugmode:\"{debug_mode}\" \"{launch_type}\"");
+                log($"Starting debugmode:\"{debug_mode}\"");
             }
             else
             {
@@ -103,6 +105,8 @@ namespace RucoyBot
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            timer1.Interval = 15;
+            timer1.Start();
             rainbowTimer.Interval = 15; // change this to adjust the animation speed
             rainbowTimer.Tick += RainbowTimer_Tick;
             rainbowTimer.Start();
@@ -216,6 +220,25 @@ namespace RucoyBot
             else if (e.NewValue == CheckState.Unchecked)
             {
                 target_list.Remove(item);
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            emulator = comboBox1.Text;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (isOn)
+            {
+                button2.ForeColor = Color.Red;
+                button3.ForeColor = Color.LimeGreen;
+            }
+            else
+            {
+                button3.ForeColor = Color.Red;
+                button2.ForeColor = Color.LimeGreen;
             }
         }
     }

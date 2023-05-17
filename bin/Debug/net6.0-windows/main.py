@@ -1,5 +1,4 @@
 import cv2 as cv
-import numpy as np
 import os
 from time import time, sleep, monotonic
 from windowcapture import WindowCapture
@@ -15,7 +14,6 @@ import win32api
 import win32con
 import win32gui
 from traceback import print_exc
-import threading
 
 if cv.ocl.haveOpenCL():
     cv.ocl.setUseOpenCL(True)
@@ -76,16 +74,16 @@ loop_time = time()
 
 # before capturing the window get it focused or else it will throw CreateCompatibleDC failed
 # Window Name, i recommend NoxPlayer because the program was made and tested on it
-emulator = "NoxPlayer"
+emulator = str(sys.argv[4])
 wincap = WindowCapture(emulator)
-print(sys.argv)
+
 image_paths = sys.argv[3].split("//") # selected from listed checkbox
 
 # instances of each Vision class with loaded png
 vision_instances = []
 
 for path in image_paths:
-    vision_instances.append(Vision("assets/" + path + ".png"))
+    vision_instances.append(Vision(os.path.join('..', '..', 'assets', path + '.png')))
 
 
 bot = Bot()
