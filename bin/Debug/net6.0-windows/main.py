@@ -98,17 +98,63 @@ cooldown = 2
 last_search_time = 0
 
 debug_mode = eval(sys.argv[1])
+automphp = eval(sys.argv[6])
+player_class = str(sys.argv[5])
 
 rectangles = []
 enemy_present = False
+exhausted = cv.imread(os.path.join('..', '..', 'assets', 'exhausted.png'))
 
 while True:
     try:
         # get an updated image of the game
         screenshot = wincap.get_screenshot()
-
         # get image with only black and white elements
         proc_image = vision_instances[0].apply_hsv_filter(screenshot, blackwhite)
+
+        # handling the exhaustion
+        exhausted_check = proc_image[494:526, 278:1007]
+        ex_status = bot.exhaustion_check(exhausted_check, exhausted, 0.7)
+        print(ex_status)
+        if len(ex_status) != 0:
+            if player_class == "Melee":
+                c(1217, 450, 0.5)
+                c(1100, 450, 0.5)
+                c(60, 450, 0.7)
+                c(60, 450, 0.7)
+                c(1217, 450, 0.5)
+                c(1100, 450, 0.5)
+                sleep(5.5)
+            elif player_class == "Distance":
+                c(1217, 566, 0.5)
+                c(1100, 566, 0.5)
+                c(60, 450, 0.7)
+                c(60, 450, 0.7)
+                c(1217, 566, 0.5)
+                c(1100, 566, 0.5)
+                sleep(5.5)
+            elif player_class == "Magic":
+                c(1217, 690, 0.5)
+                c(1100, 690, 0.5)
+                c(60, 450, 0.7)
+                c(640, 385, 0.7)
+                c(60, 450, 0.7)
+                c(640, 385, 0.7)
+                c(1217, 690, 0.5)
+                c(1100, 690, 0.5)
+                sleep(5.5)
+
+        # for auto hp and auto mana
+        if automphp == True:
+            automphp_check = screenshot[0:80, 0:440]
+            mana_pixel = automphp_check[40, 220]
+            hp_pixel = automphp_check[5, 350]
+            print(hp_pixel)
+            if all(mana_pixel == (105, 105, 105)):
+                c(65, 580, 2)
+            if all(hp_pixel == (105, 105, 105)):
+                c(65, 700, 2)
+        
 
         # append each found element coordinates 
         for vision_instance in vision_instances:
@@ -116,7 +162,7 @@ while True:
             if len(found) == 0:
                 rectangles = []
             else:
-                rectangles = found
+                rectangles += found
 
         # get the noxplayer window to 0,0 coordinates (top left)
         getWindowsWithTitle(emulator)[0].moveTo(0, 0)
@@ -124,9 +170,16 @@ while True:
             # kill enemies only if it found elements
             if len(rectangles) != 0 and len(rectangles[0]) != 0:
                 enemy_present = True
-                for enemy in rectangles:
-                    closest = bot.kill(enemy)
+                if player_class == "Melee":
+                    closest = bot.kill(rectangles)
                     c(closest[0], closest[1])
+                elif player_class == "Distance" or player_class == "Magic":
+                    closest = bot.kill(rectangles)
+                    c(closest[0], closest[1])
+                    c(closest[0]+80, closest[1])
+                    c(closest[0]-80, closest[1])
+                    c(closest[0], closest[1]+80)
+                    c(closest[0], closest[1]-80)
                 
             # search if cooldown has passed and no enemies are present
             if monotonic() - last_search_time > cooldown and enemy_present == False:
@@ -139,15 +192,17 @@ while True:
             # reset enemy_present after killing enemies
             enemy_present = False
             
-        else:
+        elif debug_mode == True:
             for vision_instance in vision_instances:
-                for i in range(len(rectangles)):
-                    # show the region of interest that the program is searching in, with the drawn found elements
-                    output_enemy = vision_instance.show_found(screenshot, rectangles[i])
-                    draw_grid(output_enemy)
-                    cv.imshow('debug_mode', output_enemy)
+                # show the region of interest that the program is searching in, with the drawn found elements
+                output_enemy = vision_instance.show_found(screenshot, rectangles)
+                draw_grid(output_enemy)
+                cv.imshow('debug_mode', output_enemy)
             draw_grid(proc_image)
             cv.imshow('processed_image', proc_image)
+            if automphp == True:
+                cv.imshow('automphp', automphp_check)
+            cv.imshow('exhausted', exhausted_check)
         
         # displays fps    
         #print('FPS {}'.format(1 / (time() - loop_time)))
