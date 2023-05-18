@@ -5,11 +5,12 @@ from pywinauto import Application, findwindows
 import window_input
 from random import shuffle
 
-def gtv(sublist):
-        return sublist[2]
+
 
 class Bot:
-    
+    def gtv(self, sublist):
+        return sublist[2]
+
     def kill(self, rectangles):
         distances = []
         x, y, w, _ = rectangles
@@ -21,7 +22,7 @@ class Bot:
             ]
         )
         # sort lists to get the closest enemy coordinates
-        dSorted = sorted(distances, key=gtv) 
+        dSorted = sorted(distances, key=self.gtv) 
 
         if len(dSorted) != 0:
             enemy_x = dSorted[0][0] + int(w/2)
