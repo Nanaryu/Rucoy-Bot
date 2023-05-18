@@ -52,6 +52,8 @@ namespace RucoyBot
         string debug_mode = "False";
         string launch_type = "skilling";
         string emulator = "NoxPlayer";
+        string player_class = "Melee";
+        string automphp = "False";
         private List<string> target_list = new List<string>();
         
         private void button2_Click(object sender, EventArgs e)
@@ -62,7 +64,7 @@ namespace RucoyBot
                 isOn = true;
 
                 pybot.StartInfo.FileName = file;
-                pybot.StartInfo.Arguments = $" \"{debug_mode}\" \"{launch_type}\" \"{string.Join("//", args)}\" \"{emulator}\"";
+                pybot.StartInfo.Arguments = $" \"{debug_mode}\" \"{launch_type}\" \"{string.Join("//", args)}\" \"{emulator}\" \"{player_class}\" \"{automphp}\"";
                 pybot.StartInfo.UseShellExecute = false;
                 if (debug_mode == "False") 
                 {
@@ -233,14 +235,34 @@ namespace RucoyBot
             if (isOn)
             {
                 button2.ForeColor = Color.Red;
+                button2.Enabled = false;
                 button3.ForeColor = Color.LimeGreen;
+                button3.Enabled = true;
             }
             else
             {
                 button3.ForeColor = Color.Red;
+                button3.Enabled = false;
                 button2.ForeColor = Color.LimeGreen;
+                button2.Enabled = true;
             }
         }
-        //160.000 line of code written :)
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            player_class = comboBox2.Text;
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked == true)
+            {
+                automphp = "True";
+            }
+            else if (checkBox2.Checked == false)
+            {
+                automphp = "False";
+            }
+        }
     }
 }
