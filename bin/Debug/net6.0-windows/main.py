@@ -3,17 +3,18 @@ import os
 from time import time, sleep, monotonic
 from windowcapture import WindowCapture
 from vision import Vision
-from pyautogui import getWindowsWithTitle
+from pyautogui import getWindowsWithTitle, locateOnScreen
 from math import sqrt
 from hsvfilter import HsvFilter
 import sys
-from bot import Bot
+from bot_class import Bot, exhaustion_check
 from random import randint, shuffle
 import pytesseract as pts
 import win32api
 import win32con
 import win32gui
 from traceback import print_exc
+from mobcalc import train
 
 if cv.ocl.haveOpenCL():
     cv.ocl.setUseOpenCL(True)
@@ -66,6 +67,16 @@ def map_search():
     # close map
     c(1245, 70)
 
+def compare_images(img1, img2, threshold):
+    gray1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+    gray2 = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
+    result = cv.matchTemplate(gray1, gray2, cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv.minMaxLoc(result)
+    if max_val >= threshold:
+        return True
+    else:
+        return False
+
 
 # Change the working directory to the folder this script is in.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -103,20 +114,67 @@ player_class = str(sys.argv[5])
 
 rectangles = []
 enemy_present = False
-exhausted = cv.imread(os.path.join('..', '..', 'assets', 'exhausted.png'))
+exhausted = cv.imread(os.path.join('..', '..', 'assets', 'exhausted4.png'))
+getWindowsWithTitle(emulator)[0].moveTo(0, 0)
+# 1240, 70
+statval = 5
+lvlval = 1
+statarea = []
 
+statinterval = 10001
 while True:
     try:
+        #statinterval += 1
         # get an updated image of the game
         screenshot = wincap.get_screenshot()
         # get image with only black and white elements
         proc_image = vision_instances[0].apply_hsv_filter(screenshot, blackwhite)
-
-        # handling the exhaustion
-        exhausted_check = proc_image[494:526, 278:1007]
-        ex_status = bot.exhaustion_check(exhausted_check, exhausted, 0.7)
-        print(ex_status)
-        if len(ex_status) != 0:
+        '''
+        if statinterval > 10000:
+            statinterval = 0
+            if player_class == "Melee":
+                c(1245, 70)
+                c(230, 166, 0.5)
+                sleep(1)
+                lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
+                lvlval = pts.image_to_string(lvlarea)
+                print("pts result: ", lvlval)
+                lvlval = int(lvlval)
+                statarea = proc_image[300-32-5:345-32+5,1100:1205]
+                statval = pts.image_to_string(statarea)
+                statval = int(statval)
+                print(player_class, ": ", statval, end="")
+                print(train(lvlval, statval))
+                c(1245, 70)
+            elif player_class == "Magic":
+                c(1245, 70)
+                c(230, 166, 0.5)
+                lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
+                lvlval = pts.image_to_string(lvlarea)
+                lvlval = int(lvlval)
+                statarea = proc_image[500-32-5:545-32+5,1100:1205]
+                statval = pts.image_to_string(statarea)
+                statval = int(statval)
+                print(player_class, ": ", statval, end="")
+                print(train(lvlval, statval))
+                c(1245, 70)
+            elif player_class == "Distance":
+                c(1245, 70)
+                c(230, 166, 0.5)
+                lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
+                lvlval = pts.image_to_string(lvlarea)
+                lvlval = int(lvlval)
+                statarea = proc_image[400-32-5:445-32+5,1100:1205]
+                statval = pts.image_to_string(statarea)
+                statval = int(statval)
+                print(player_class, ": ", statval, end="")
+                print(train(lvlval, statval))
+                c(1245, 70)
+        '''
+        # mob exhaustion
+        exhausted_check = screenshot[489:521, 278:1007]
+        ex_status = exhaustion_check(exhausted_check)
+        if ex_status == True:
             if player_class == "Melee":
                 c(1217, 450, 0.5)
                 c(1100, 450, 0.5)
@@ -124,7 +182,7 @@ while True:
                 c(60, 450, 0.7)
                 c(1217, 450, 0.5)
                 c(1100, 450, 0.5)
-                sleep(5.5)
+                sleep(5)
             elif player_class == "Distance":
                 c(1217, 566, 0.5)
                 c(1100, 566, 0.5)
@@ -132,7 +190,7 @@ while True:
                 c(60, 450, 0.7)
                 c(1217, 566, 0.5)
                 c(1100, 566, 0.5)
-                sleep(5.5)
+                sleep(5)
             elif player_class == "Magic":
                 c(1217, 690, 0.5)
                 c(1100, 690, 0.5)
@@ -142,14 +200,13 @@ while True:
                 c(640, 385, 0.7)
                 c(1217, 690, 0.5)
                 c(1100, 690, 0.5)
-                sleep(5.5)
-
+                sleep(5)
+        
         # for auto hp and auto mana
         if automphp == True:
             automphp_check = screenshot[0:80, 0:440]
             mana_pixel = automphp_check[40, 220]
             hp_pixel = automphp_check[5, 350]
-            print(hp_pixel)
             if all(mana_pixel == (105, 105, 105)):
                 c(65, 580, 2)
             if all(hp_pixel == (105, 105, 105)):
@@ -198,11 +255,9 @@ while True:
                 output_enemy = vision_instance.show_found(screenshot, rectangles)
                 draw_grid(output_enemy)
                 cv.imshow('debug_mode', output_enemy)
-            draw_grid(proc_image)
             cv.imshow('processed_image', proc_image)
-            if automphp == True:
-                cv.imshow('automphp', automphp_check)
-            cv.imshow('exhausted', exhausted_check)
+            #cv.imshow('automphp', automphp_check)
+            #cv.imshow('exhausted', exhausted_check)
         
         # displays fps    
         #print('FPS {}'.format(1 / (time() - loop_time)))

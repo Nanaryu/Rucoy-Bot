@@ -66,7 +66,6 @@ class Vision:
         rectangle_list = []
         for rectangle in rectangles:
             rectangle_list.append(list(rectangle))
-        print(rectangle_list)
         return rectangle_list
 
     
