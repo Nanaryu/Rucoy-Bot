@@ -54,9 +54,6 @@ namespace RucoyBot
         string emulator = "NoxPlayer";
         string player_class = "Melee";
         string automphp = "False";
-        string prc = "False";
-        string db = "False";
-        string ex = "False";
         private List<string> target_list = new List<string>();
         
         private void button2_Click(object sender, EventArgs e)
@@ -110,9 +107,6 @@ namespace RucoyBot
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            checkBox3.Visible = false;
-            checkBox4.Visible = false;
-            checkBox5.Visible = false;
             timer1.Interval = 15;
             timer1.Start();
             rainbowTimer.Interval = 15; // change this to adjust the animation speed
@@ -192,16 +186,10 @@ namespace RucoyBot
         {
             if(checkBox1.Checked == true)
             {
-                checkBox3.Visible = true;
-                checkBox4.Visible = true;
-                checkBox5.Visible = true;
                 debug_mode = "True";
             } 
             else if(checkBox1.Checked == false)
             {
-                checkBox3.Visible = false;
-                checkBox4.Visible = false;
-                checkBox5.Visible = false;
                 debug_mode = "False";
             }
         }
@@ -274,42 +262,6 @@ namespace RucoyBot
             else if (checkBox2.Checked == false)
             {
                 automphp = "False";
-            }
-        }
-
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox3.Checked == true)
-            {
-                prc = "True";
-            }
-            else if (checkBox3.Checked == false)
-            {
-                prc = "False";
-            }
-        }
-
-        private void checkBox4_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox4.Checked == true)
-            {
-                db = "True";
-            }
-            else if (checkBox4.Checked == false)
-            {
-                db = "False";
-            }
-        }
-
-        private void checkBox5_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox5.Checked == true)
-            {
-                ex = "True";
-            }
-            else if (checkBox5.Checked == false)
-            {
-                ex = "False";
             }
         }
     }

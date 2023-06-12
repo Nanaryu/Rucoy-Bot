@@ -7,7 +7,7 @@ from pyautogui import getWindowsWithTitle, locateOnScreen
 from math import sqrt
 from hsvfilter import HsvFilter
 import sys
-from bot_class import Bot, exhaustion_check
+from bot_func import kill, exhaustion_check, shuffle_map_points
 from random import randint, shuffle
 import pytesseract as pts
 import win32api
@@ -61,21 +61,54 @@ def map_search():
     # open map
     c(1000, 70)
     # click every point around player randomly
-    for clickpoint in bot.shuffle_map_points():
+    for clickpoint in shuffle_map_points():
         c(clickpoint[0], clickpoint[1], 0.01)
     sleep(0.5)
     # close map
     c(1245, 70)
 
-def compare_images(img1, img2, threshold):
-    gray1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
-    gray2 = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
-    result = cv.matchTemplate(gray1, gray2, cv.TM_CCOEFF_NORMED)
-    min_val, max_val, min_loc, max_loc = cv.minMaxLoc(result)
-    if max_val >= threshold:
-        return True
-    else:
-        return False
+def self_sustain(statinterval, player_class):
+    if statinterval > 10000:
+        statinterval = 0
+        if player_class == "Melee":
+            c(1245, 70)
+            c(230, 166, 0.5)
+            sleep(1)
+            lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
+            lvlval = pts.image_to_string(lvlarea)
+            print("pts result: ", lvlval)
+            lvlval = int(lvlval)
+            statarea = proc_image[300-32-5:345-32+5,1100:1205]
+            statval = pts.image_to_string(statarea)
+            statval = int(statval)
+            print(player_class, ": ", statval, end="")
+            print(train(lvlval, statval))
+            c(1245, 70)
+        elif player_class == "Magic":
+            c(1245, 70)
+            c(230, 166, 0.5)
+            lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
+            lvlval = pts.image_to_string(lvlarea)
+            lvlval = int(lvlval)
+            statarea = proc_image[500-32-5:545-32+5,1100:1205]
+            statval = pts.image_to_string(statarea)
+            statval = int(statval)
+            print(player_class, ": ", statval, end="")
+            print(train(lvlval, statval))
+            c(1245, 70)
+        elif player_class == "Distance":
+            c(1245, 70)
+            c(230, 166, 0.5)
+            lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
+            lvlval = pts.image_to_string(lvlarea)
+            lvlval = int(lvlval)
+            statarea = proc_image[400-32-5:445-32+5,1100:1205]
+            statval = pts.image_to_string(statarea)
+            statval = int(statval)
+            print(player_class, ": ", statval, end="")
+            print(train(lvlval, statval))
+            c(1245, 70)
+
 
 
 # Change the working directory to the folder this script is in.
@@ -91,19 +124,13 @@ wincap = WindowCapture(emulator)
 image_paths = sys.argv[3].split("//") # selected from listed checkbox
 
 # instances of each Vision class with loaded png
-vision_instances = []
 
-for path in image_paths:
-    vision_instances.append(Vision(os.path.join('..', '..', 'assets', path + '.png')))
+mob_instance = Vision(os.path.join('..', '..', 'assets', image_paths[0] + '.png'))
 
 
-bot = Bot()
 
 # filter that allows program to only see black and white
 blackwhite = HsvFilter(0, 0, 237, 0, 153, 255, 0, 0, 0, 0)
-
-
-MAP_OPEN = False #1000 70, close 1245 70
 
 cooldown = 2
 last_search_time = 0
@@ -116,61 +143,21 @@ rectangles = []
 enemy_present = False
 exhausted = cv.imread(os.path.join('..', '..', 'assets', 'exhausted4.png'))
 getWindowsWithTitle(emulator)[0].moveTo(0, 0)
-# 1240, 70
+
 statval = 5
 lvlval = 1
 statarea = []
 
 statinterval = 10001
+searchinterval = 0
 while True:
     try:
         #statinterval += 1
         # get an updated image of the game
         screenshot = wincap.get_screenshot()
         # get image with only black and white elements
-        proc_image = vision_instances[0].apply_hsv_filter(screenshot, blackwhite)
-        '''
-        if statinterval > 10000:
-            statinterval = 0
-            if player_class == "Melee":
-                c(1245, 70)
-                c(230, 166, 0.5)
-                sleep(1)
-                lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
-                lvlval = pts.image_to_string(lvlarea)
-                print("pts result: ", lvlval)
-                lvlval = int(lvlval)
-                statarea = proc_image[300-32-5:345-32+5,1100:1205]
-                statval = pts.image_to_string(statarea)
-                statval = int(statval)
-                print(player_class, ": ", statval, end="")
-                print(train(lvlval, statval))
-                c(1245, 70)
-            elif player_class == "Magic":
-                c(1245, 70)
-                c(230, 166, 0.5)
-                lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
-                lvlval = pts.image_to_string(lvlarea)
-                lvlval = int(lvlval)
-                statarea = proc_image[500-32-5:545-32+5,1100:1205]
-                statval = pts.image_to_string(statarea)
-                statval = int(statval)
-                print(player_class, ": ", statval, end="")
-                print(train(lvlval, statval))
-                c(1245, 70)
-            elif player_class == "Distance":
-                c(1245, 70)
-                c(230, 166, 0.5)
-                lvlarea = proc_image[200-32-5:245-32+5,1100:1205]
-                lvlval = pts.image_to_string(lvlarea)
-                lvlval = int(lvlval)
-                statarea = proc_image[400-32-5:445-32+5,1100:1205]
-                statval = pts.image_to_string(statarea)
-                statval = int(statval)
-                print(player_class, ": ", statval, end="")
-                print(train(lvlval, statval))
-                c(1245, 70)
-        '''
+        proc_image = mob_instance.apply_hsv_filter(screenshot, blackwhite)
+        
         # mob exhaustion
         exhausted_check = screenshot[489:521, 278:1007]
         ex_status = exhaustion_check(exhausted_check)
@@ -214,47 +201,46 @@ while True:
         
 
         # append each found element coordinates 
-        for vision_instance in vision_instances:
-            found = vision_instance.find(proc_image, 0.7)
-            if len(found) == 0:
-                rectangles = []
-            else:
-                rectangles += found
+        found = mob_instance.find(proc_image, 0.65)
+        if len(found) == 0:
+            rectangles = []
+        else:
+            rectangles = found
 
         # get the noxplayer window to 0,0 coordinates (top left)
         getWindowsWithTitle(emulator)[0].moveTo(0, 0)
+        
         if debug_mode == False:    
             # kill enemies only if it found elements
             if len(rectangles) != 0 and len(rectangles[0]) != 0:
                 enemy_present = True
                 if player_class == "Melee":
-                    closest = bot.kill(rectangles)
+                    closest = kill(rectangles)
                     c(closest[0], closest[1])
                 elif player_class == "Distance" or player_class == "Magic":
-                    closest = bot.kill(rectangles)
+                    closest = kill(rectangles)
                     c(closest[0], closest[1])
                     c(closest[0]+80, closest[1])
                     c(closest[0]-80, closest[1])
                     c(closest[0], closest[1]+80)
                     c(closest[0], closest[1]-80)
+                    
                 
             # search if cooldown has passed and no enemies are present
-            if monotonic() - last_search_time > cooldown and enemy_present == False:
+            elif searchinterval > 50 and enemy_present == False:
+                searchinterval = 0
                 map_search()
-                last_search_time = monotonic()
-                    
                 # reset rectangles
                 rectangles = []
-
-            # reset enemy_present after killing enemies
-            enemy_present = False
+            else:
+                enemy_present = False
+                searchinterval += 1
             
         elif debug_mode == True:
-            for vision_instance in vision_instances:
-                # show the region of interest that the program is searching in, with the drawn found elements
-                output_enemy = vision_instance.show_found(screenshot, rectangles)
-                draw_grid(output_enemy)
-                cv.imshow('debug_mode', output_enemy)
+            # show the region of interest that the program is searching in, with the drawn found elements
+            output_enemy = mob_instance.show_found(screenshot, rectangles)
+            draw_grid(output_enemy)
+            cv.imshow('debug_mode', output_enemy)
             cv.imshow('processed_image', proc_image)
             #cv.imshow('automphp', automphp_check)
             #cv.imshow('exhausted', exhausted_check)

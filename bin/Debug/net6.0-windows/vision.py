@@ -37,12 +37,12 @@ class Vision:
         roi = haystack_img[80:80+560, 120:120+1040]
         height, width, _ = roi.shape #1040x560
         h, w, _ = self.needle_img.shape
-        #13 squares 80x80 width
-        #7 squares 80x80 height
-
+        # rucoy area viewable by player
+        # 13 squares 80x80 width
+        # 7 squares 80x80 height
         
         rectangles = []
-        # resize
+        # resize for
         resized_roi = cv.resize(roi, (int(width/2), int(height/2)))
         res_needle = cv.resize(self.needle_img, (int(w/2), int(h/2)))
         # Perform template matching 
@@ -63,9 +63,11 @@ class Vision:
         # Apply group rectangles to eliminate overlapping rectangles
         rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
 
+        # convert from array() to list() for better data manipulation
         rectangle_list = []
         for rectangle in rectangles:
             rectangle_list.append(list(rectangle))
+        
         return rectangle_list
 
     
@@ -93,35 +95,15 @@ class Vision:
 
         #cv.rectangle(haystack_img, (480, 240), (560, 320), (0, 255, 0), 2)
 
-        distances = []
         for (x, y, w, h) in rectangles:
-            distances.append(
-                    [
-                        x, # enemy x
-                        y, # enemy y
-                        sqrt((x - player_x)**2 + (y - player_y)**2) # distance from player center(640, 390)
-                    ]
-                )
-            
-            
-            dSorted = sorted(distances, key=self.gtv)
-
-            top_left = (x, y + 80)
-            tl = (x + 30, y + 110)
-            br = (x + w - 30, y + h + 50)
-            bottom_right = (x + w, y + h + 80)
             center_x = x + int(w/2)
-            center_y = y + int(h/2)
-
-            cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=2)
-            cv.rectangle(haystack_img, tl, br, color=(0, 255, 0), lineType=line_type, thickness=-1)
-            cv.line(haystack_img, (player_x, player_y), (center_x, center_y + 80), (0, 255, 0), 2)
+            center_y = y + h + 10 + 40
+            top_left = (center_x - 40, y + h + 10)
+            bottom_right = (center_x + 40, y + h + 10 + 80)
+            
+            cv.rectangle(haystack_img, top_left, bottom_right, color=line_color, lineType=line_type, thickness=3)
+            cv.line(haystack_img, (player_x, player_y), (center_x, center_y), (0, 255, 0), 2)
                     
-            if len(dSorted) != 0:
-                #cv.line(haystack_img, (520, 280), (center_x, 280), (255, 0, 0), 2)
-                #cv.line(haystack_img, (center_x, 280), (center_x, center_y + 80), (255, 0, 255), 2)
-                cv.line(haystack_img, (player_x, player_y), (dSorted[0][0]+int(w/2), dSorted[0][1] + 80 + int(h/2)), (0, 0, 255), 2)
-                cv.circle(haystack_img, (dSorted[0][0]+int(w/2), dSorted[0][1]+int(h/2)+80), 10, (0, 0, 255), thickness=2)
 
         return haystack_img
 
